@@ -77,10 +77,33 @@ WSGI_APPLICATION = 'nailstore.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-DATABASES = {
+""" DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}  """
+
+""" DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'Afire',  # Database name
+        'USER': 'your_mysql_user',
+        'PASSWORD': 'your_mysql_password',
+        'HOST': 'localhost',  # Or your database server
+        'PORT': '3306',  # Default MySQL port
+    }
+}
+ """
+ 
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'Afire',
+        'USER': 'root',
+        'PASSWORD': 'Mersedese233',
+        'HOST': '127.0.0.1',  
+        'PORT': '3306',  #
     }
 }
 
@@ -130,3 +153,6 @@ LOGIN_REDIRECT_URL = '/'
 
 MEDIA_URL = '/media/' 
 MEDIA_ROOT = BASE_DIR / 'media'  
+
+import pymysql
+pymysql.install_as_MySQLdb()
