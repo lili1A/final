@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Product Catalog - Afire Nail Store</title>
+    {% load static %}
+    <style>
+        body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+    margin: 0;
+    padding: 20px;
+    min-height: 100vh;
+    overflow-x: hidden;  /* Prevents horizontal overflow */
+}
+
+.catalog-container {
+    display: flex;
+    gap: 30px;
+    max-width: 1400px;
+    margin: 0 auto;
+    flex-wrap: wrap;  /* Allows the layout to wrap on smaller screens */
+}
+
+.products-section {
+    flex: 1;
+    min-width: 300px;  /* Ensures the products section doesn’t shrink too much */
+}
+
+.cart-section {
+    flex: 0 0 350px;  /* Fixed width for the cart */
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow-y: auto;
+    max-height: 90vh;
+    transition: max-height 0.3s ease;  /* Smooth transition for max-height */
+}
+
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 25px;
+    margin: 0;
+}
+
+.product-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.product-img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 15px;
+}
+
+.product-info {
+    flex-grow: 1;
+}
+
+.product-name {
+    font-size: 1.3em;
+    color: #ff6f61;
+    margin: 0 0 10px 0;
+}
+
+.product-price {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #333;
+    margin: 0 0 5px 0;
+}
+
+.product-stock {
+    font-size: 0.9em;
+    color: #666;
+    margin: 0 0 15px 0;
+}
+
+.add-to-cart {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    background: #ff6f61;
+    color: white;
+    border: none;
+    border-radius: 30px;
+    font-size: 1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: auto;
+}
+
+.add-to-cart:hover {
+    background: #ff3b2f;
+    transform: translateY(-2px);
+}
+
+.cart-title {
+    color: #ff6f61;
+    font-size: 1.5em;
+    margin: 0 0 20px 0;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #ff6f61;
+}
+
+.cart-items {
+    max-height: 300px;
+    overflow-y: auto;
+    margin-bottom: 20px;
+}
+
+.cart-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.item-details {
+    flex-grow: 1;
+}
+
+.item-name {
+    font-weight: bold;
+    margin: 0 0 5px 0;
+}
+
+.item-price {
+    color: #666;
+    font-size: 0.9em;
+    margin: 0;
+}
+
+.remove-item {
+    background: none;
+    border: none;
+    color: #ff6f61;
+    font-size: 1.2em;
+    cursor: pointer;
+    padding: 5px;
+    transition: transform 0.2s ease;
+}
+
+.remove-item:hover {
+    transform: scale(1.2);
+}
+
+.cart-total {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #ff6f61;
+    margin: 20px 0;
+    text-align: right;
+}
+
+.cart-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.cart-btn {
+    display: block;
+    padding: 12px;
+    text-align: center;
+    border-radius: 30px;
+    font-weight: bold;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.continue-shopping {
+    background: #6c757d;
+    color: white;
+}
+
+.continue-shopping:hover {
+    background: #5a6268;
+    transform: translateY(-2px);
+}
+
+.checkout-btn {
+    background: #ff6f61;
+    color: white;
+}
+
+.checkout-btn:hover {
+    background: #ff3b2f;
+    transform: translateY(-2px);
+}
+
+.empty-cart {
+    text-align: center;
+    padding: 20px 0;
+    color: #666;
+}
+
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 25px;
+    background-color: #4CAF50;
+    color: white;
+    border-radius: 5px;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    animation: fadeIn 0.3s ease-out;
+}
+
+.notification.error {
+    background-color: #f44336;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 1024px) {
+    .catalog-container {
+        flex-direction: column;
+    }
+    
+    .cart-section {
+        position: static;
+        order: -1;
+        margin-bottom: 30px;
+        max-height: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .products-grid {
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    }
+}
+
+@media (max-width: 480px) {
+    .products-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .product-card {
+        padding: 20px;
+    }
+    
+    .cart-section {
+        flex: 1 0 100%;  /* Ensures the cart section takes full width on small screens */
+    }
+}
+
+    </style>
+</head>
+<body>
+    <div class="catalog-container">
+        <div class="products-section">
+            <h1>Our Products</h1>
+            <div class="products-grid">
+                {% for product in products %}
+                <div class="product-card">
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-img">
+                    <div class="product-info">
+                        <h3 class="product-name">{{ product.name }}</h3>
+                        <p class="product-price">${{ product.price }}</p>
+                        <p class="product-stock">{{ product.stock }} available</p>
+                    </div>
+                    <form action="{% url 'add_to_cart' product.id %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="add-to-cart">Add to Cart</button>
+                    </form>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="cart-section">
+            <h2 class="cart-title">Your Cart</h2>
+            <div class="cart-items">
+                {% if cart.items.all %}
+                    {% for item in cart.items.all %}
+                    <div class="cart-item">
+                        <div class="item-details">
+                            <p class="item-name">{{ item.product.name }}</p>
+                            <p class="item-price">${{ item.product.price }} × {{ item.quantity }}</p>
+                        </div>
+                        <form action="{% url 'remove_from_cart' item.id %}" method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="remove-item" aria-label="Remove item">&times;</button>
+                        </form>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="empty-cart">Your cart is empty</p>
+                {% endif %}
+            </div>
+            
+            {% if cart.items.all %}
+                <p class="cart-total">Total: ${{ cart.total_price }}</p>
+                <div class="cart-actions">
+                    <a href="{% url 'product_catalog' %}" class="cart-btn continue-shopping">Continue Shopping</a>
+                    <a href="{% url 'checkout' %}" class="cart-btn checkout-btn">Proceed to Checkout</a>
+                </div>
+            {% else %}
+                <a href="{% url 'product_catalog' %}" class="cart-btn checkout-btn">Browse Products</a>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="notification{% if message.tags %} {{ message.tags }}{% endif %}">
+                {{ message }}
+            </div>
+            <script>
+                setTimeout(function() {
+                    var notifications = document.querySelectorAll('.notification');
+                    notifications.forEach(function(notification) {
+                        notification.style.opacity = '0';
+                        setTimeout(function() {
+                            notification.remove();
+                        }, 300);
+                    });
+                }, 3500);
+            </script>
+        {% endfor %}
+    {% endif %}
+
+    <script>
+        // Enhanced AJAX for adding to cart
+        document.querySelectorAll('.add-to-cart').forEach(button => {
+            button.addEventListener('click', async function(e) {
+                e.preventDefault();
+                const form = this.closest('form');
+                const button = this;
+                
+                // Disable button during request
+                button.disabled = true;
+                button.textContent = 'Adding...';
+                
+                try {
+                    const response = await fetch(form.action, {
+                        method: 'POST',
+                        body: new FormData(form),
+                        headers: {
+                            'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value
+                        }
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if(data.success) {
+                        // Create success notification
+                        const notification = document.createElement('div');
+                        notification.className = 'notification';
+                        notification.textContent = data.message || 'Item added to cart!';
+                        document.body.appendChild(notification);
+                        
+                        // Remove notification after delay
+                        setTimeout(() => {
+                            notification.style.opacity = '0';
+                            setTimeout(() => notification.remove(), 300);
+                        }, 3500);
+                        
+                        // Refresh the cart section
+                        const cartResponse = await fetch(window.location.href, {
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        });
+                        const html = await cartResponse.text();
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, 'text/html');
+                        const newCart = doc.querySelector('.cart-section');
+                        document.querySelector('.cart-section').innerHTML = newCart.innerHTML;
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                } finally {
+                    button.disabled = false;
+                    button.textContent = 'Add to Cart';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

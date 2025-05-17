@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Home - Afire Nail Store</title>
+    {% load static %}  
+    <link rel="stylesheet" type="text/css" href="{% static 'shop/styles.css' %}">
+    <style>
+    
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 100%;
+            animation: fadeIn 1s ease-in-out; 
+        }
+
+        h1 {
+            font-size: 2.5em;
+            color: #ff6f61;
+            margin-bottom: 20px;
+        }
+
+        p {
+            font-size: 1.2em;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        a {
+            display: inline-block;
+            margin: 10px;
+            padding: 10px 20px;
+            font-size: 1em;
+            color: #fff;
+            background-color: #ff6f61;
+            border-radius: 25px;
+            text-decoration: none;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        a:hover {
+            background-color: #ff3b2f;
+            transform: translateY(-3px);
+        }
+
+        .welcome-message {
+            font-size: 1.5em;
+            color: #555;
+            margin-bottom: 30px;
+        }
+
+        .username {
+            color: #ff6f61;
+            font-weight: bold;
+        }
+
+        /* Fade-in animation */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @media (max-width: 768px) {
+    .container {
+        padding: 20px;
+    }
+
+    h1 {
+        font-size: 2em;
+    }
+
+    .review {
+        padding: 15px;
+    }
+}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to Afire the Nail Store!</h1>
+
+        {% if user.is_authenticated %}
+            <p class="welcome-message">Hello, <span class="username">{{ user.username }}</span>!</p>
+            <a href="{% url 'logout' %}">Logout</a>
+            <a href="{% url 'product_catalog' %}">View Product Catalog</a>
+            <a href="{% url 'about_creator' %}">About Creator</a>
+        {% else %}
+            <p class="welcome-message">Welcome, guest!</p>
+            <a href="{% url 'login' %}">Login</a>
+            <a href="{% url 'register' %}">Register</a>
+        {% endif %}
+    </div>
+</body>
+</html>

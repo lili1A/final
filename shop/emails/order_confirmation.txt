@@ -1,0 +1,22 @@
+Order Confirmation #{{ order.id }}
+
+Dear {{ order.first_name }},
+
+Thank you for your order! Here are your order details:
+
+Order Number: #{{ order.id }}
+Date: {{ order.created_at|date:"F j, Y" }}
+Total: ${{ order.total_price }}
+
+Items Ordered:
+{% for item in order.items.all %}
+- {{ item.quantity }} × {{ item.product.name }} @ ${{ item.price }} each
+{% endfor %}
+
+Shipping Address:
+{{ order.shipping_address }}
+{{ order.city }}, {{ order.country }}
+
+We'll notify you when your order ships. If you have any questions, please contact us at {{ contact_email }}.
+
+Thank you for shopping with us!

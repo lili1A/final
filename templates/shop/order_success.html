@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Your Cart</title>
+</head>
+<body>
+    <h2>Order Success</h2>
+    <p>Thank you for your order! Your order number is {{ order.id }}.</p>
+    <p>Total Price: ${{ order.total_price }}</p>
+    <p>Status: {% if order.is_completed %}Completed{% else %}Pending{% endif %}</p>
+</body>
+</html>

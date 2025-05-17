@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Your Shopping Cart - Afire Nail Store</title>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'shop/styles.css' %}">
+    <style>
+        /* Your existing styles */
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+
+        /* New cart sidebar styles */
+        #cart-sidebar {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: 400px;
+            height: 100vh;
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+            transition: right 0.3s ease;
+            z-index: 1000;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        #cart-sidebar.open {
+            right: 0;
+        }
+
+        .cart-toggle {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #ff6f61;
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            z-index: 999;
+        }
+
+        .cart-count {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: white;
+            color: #ff6f61;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            font-size: 14px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+        }
+
+        .close-sidebar {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #ff6f61;
+        }
+
+        /* Rest of your existing cart styles */
+        .container {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            width: 100%;
+            animation: fadeIn 1s ease-in-out;
+            margin: 20px 0;
+        }
+
+        /* ... keep all your other existing styles ... */
+    </style>
+</head>
+<body>
+    <!-- Cart Toggle Button (visible on all pages) -->
+    <div class="cart-toggle" id="cart-toggle">
+        <span>🛒</span>
+        <span class="cart-count">{{ cart.total_items|default:"0" }}</span>
+    </div>
+
+    <!-- Cart Sidebar -->
+    <div id="cart-sidebar">
+        <button class="close-sidebar" id="close-sidebar">&times;</button>
+        <h1>Your Shopping Cart</h1>
+        
+        {% if cart.items.all %}
+            <table class="cart-table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Total</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in cart.items.all %}
+                    <tr>
+                        <td>
+                            <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="product-img">
+                            {{ item.product.name }}
+                        </td>
+                        <td>${{ item.product.price }}</td>
+                        <td>
+                            <form method="post" action="{% url 'update_cart_item' item.id %}" class="update-form">
+                                {% csrf_token %}
+                                <input type="number" name="quantity" value="{{ item.quantity }}" min="1" class="quantity-input">
+                                <button type="submit" class="action-button">Update</button>
+                            </form>
+                        </td>
+                        <td>${{ item.total_price }}</td>
+                        <td>
+                            <form action="{% url 'remove_from_cart' item.id %}" method="post" class="remove-form">
+                                {% csrf_token %}
+                                <button type="submit" class="action-button">Remove</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <div class="cart-summary">
+                <h3>Cart Total: ${{ cart.total_price }}</h3>
+                <a href="{% url 'product_catalog' %}" class="continue-shopping">Continue Shopping</a>
+                <a href="#" class="checkout-button">Proceed to Checkout</a>
+            </div>
+        {% else %}
+            <div class="empty-cart">
+                <div class="empty-cart-icon">🛒</div>
+                <h3>Your cart is empty</h3>
+                <p>Start shopping to add items to your cart</p>
+                <a href="{% url 'product_catalog' %}" class="checkout-button">Browse Products</a>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Your existing notification system -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="notification{% if message.tags %} {{ message.tags }}{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <script>
+        // Cart sidebar toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            const cartSidebar = document.getElementById('cart-sidebar');
+            const cartToggle = document.getElementById('cart-toggle');
+            const closeSidebar = document.getElementById('close-sidebar');
+
+            cartToggle.addEventListener('click', function() {
+                cartSidebar.classList.add('open');
+            });
+
+            closeSidebar.addEventListener('click', function() {
+                cartSidebar.classList.remove('open');
+            });
+
+            // Close when clicking outside
+            document.addEventListener('click', function(event) {
+                if (!cartSidebar.contains(event.target) && event.target !== cartToggle) {
+                    cartSidebar.classList.remove('open');
+                }
+            });
+
+            // AJAX form submissions
+            document.querySelectorAll('.update-form, .remove-form').forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    fetch(this.action, {
+                        method: 'POST',
+                        body: new FormData(this),
+                        headers: {
+                            'X-CSRFToken': this.querySelector('[name=csrfmiddlewaretoken]').value
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if(data.success) {
+                            // Refresh the cart sidebar
+                            fetch(window.location.href, {
+                                headers: {
+                                    'X-Requested-With': 'XMLHttpRequest'
+                                }
+                            })
+                            .then(response => response.text())
+                            .then(html => {
+                                const parser = new DOMParser();
+                                const doc = parser.parseFromString(html, 'text/html');
+                                const newCart = doc.getElementById('cart-sidebar');
+                                cartSidebar.innerHTML = newCart.innerHTML;
+                            });
+                        }
+                    });
+                });
+            });
+
+            // Notification fade out
+            setTimeout(function() {
+                var notifications = document.querySelectorAll('.notification');
+                notifications.forEach(function(notification) {
+                    notification.style.opacity = '0';
+                    setTimeout(function() {
+                        notification.remove();
+                    }, 500);
+                });
+            }, 3000);
+        });
+    </script>
+</body>
+</html>
